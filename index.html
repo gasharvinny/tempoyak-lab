@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tempoyak Fermentation: Derivative f'(x) Analysis Lab</title>
+    
+    <!-- Tailwind CSS for modern dashboard design -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter & Playfair Display for academic yet premium look -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <!-- KaTeX for high-performance LaTeX math rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
+
+    <!-- Chart.js for smooth mathematical animations and dynamic tangent tracing -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Custom Tailwind Config for Malaysian Agro-Bioscience Theme (Durian Gold & Bio-Forest Greens) -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        forest: {
+                            50: '#f2f7f4',
+                            100: '#e1ebe6',
+                            800: '#1e3d30',
+                            900: '#0f241c',
+                        },
+                        durian: {
+                            100: '#fef9c3',
+                            400: '#facc15',
+                            500: '#eab308',
+                            600: '#ca8a04',
+                            700: '#a16207',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #ca8a04;
+            border-radius: 3px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #a16207;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col">
+
+    <!-- Header/Navigation Bar with Malaysian Identity and Field Title -->
+    <header class="bg-forest-900 text-white border-b-4 border-durian-500 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 py-5 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center space-x-4">
+                <div class="bg-durian-500 text-forest-900 p-2.5 rounded-xl font-bold text-2xl shadow-inner animate-pulse">
+                    🍈
+                </div>
+                <div>
+                    <span class="text-xs font-semibold tracking-wider text-durian-400 uppercase">Agro Product Technology (SFP) • Universiti Putra Malaysia Context</span>
+                    <h1 class="text-2xl md:text-3xl font-serif font-bold text-white leading-tight">Tempoyak Fermentation Derivative Lab</h1>
+                </div>
+            </div>
+            <div class="text-center md:text-right bg-forest-800 px-4 py-2 rounded-lg border border-forest-100/10">
+                <p class="text-xs text-slate-300">Bioprocess Kinetics & Mathematics</p>
+                <p class="text-sm font-semibold text-durian-400">Modelling Lactic Acid Production</p>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-7xl mx-auto w-full px-4 py-6 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Left Side: Interactive Chart and Simulation Controls (7 Cols) -->
+        <section class="lg:col-span-7 bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col justify-between">
+            <div>
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-forest-900">Dynamic Kinetic Analysis</h2>
+                        <p class="text-xs text-slate-500">Click anywhere on the graph or drag the slider to calculate the instantaneous rate of acid development.</p>
+                    </div>
+                    <span class="bg-forest-100 text-forest-800 text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider">
+                        Live Simulation
+                    </span>
+                </div>
+
+                <!-- Dynamic Tempoyak Visualizer (Bioprocess Micro-Reactor) -->
+                <div class="grid grid-cols-3 gap-4 mb-4 p-3 bg-gradient-to-r from-forest-50 to-durian-100/30 rounded-xl border border-durian-100">
+                    <div class="col-span-1 flex flex-col items-center justify-center border-r border-slate-200/60 pr-2">
+                        <span class="text-xs font-semibold text-forest-900 mb-1">Fermentation Jar</span>
+                        <div class="relative w-16 h-20 bg-slate-100 border-2 border-slate-400 rounded-b-2xl rounded-t-md overflow-hidden flex flex-col justify-end">
+                            <!-- Tempoyak filling level representing Lactic Acid & Acidification -->
+                            <div id="tempoyakFluid" class="w-full bg-gradient-to-t from-durian-600 to-durian-400 transition-all duration-300" style="height: 10%;"></div>
+                            <!-- Bubble micro-particles (LAB Activity) -->
+                            <div id="bacterialBubbles" class="absolute inset-0 pointer-events-none flex flex-wrap justify-around items-end p-1">
+                                <span class="bubble text-[8px] opacity-0 text-white animate-bounce">🫧</span>
+                                <span class="bubble text-[6px] opacity-0 text-white animate-bounce" style="animation-delay: 0.2s">🫧</span>
+                                <span class="bubble text-[10px] opacity-0 text-white animate-bounce" style="animation-delay: 0.4s">🫧</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-span-2 flex flex-col justify-center">
+                        <span class="text-xs font-bold text-forest-800 flex items-center gap-1">
+                            <span class="w-2.5 h-2.5 bg-forest-800 rounded-full inline-block animate-ping"></span>
+                            Bioreactor Status @ <span id="statusTime" class="text-durian-700">0</span> Hours
+                        </span>
+                        <p id="statusMsg" class="text-xs text-slate-600 mt-1 line-clamp-2">
+                            Bacteria are adjusting to the durian pulp. Lactic acid accumulation is minimal. (Lag Phase)
+                        </p>
+                    </div>
+                </div>
+
+                <!-- The Main Kinetic Graph Canvas -->
+                <div class="relative w-full h-[320px] bg-slate-50/50 p-2 rounded-xl border border-slate-100">
+                    <canvas id="kineticsChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Simulation Slider & Manual Override Controls -->
+            <div class="mt-4 pt-4 border-t border-slate-100">
+                <div class="flex items-center justify-between mb-2">
+                    <label for="timeSlider" class="text-xs font-bold text-forest-800 flex items-center gap-1">
+                        ⏱️ Adjust Fermentation Time (hours):
+                        <span id="sliderValueDisplay" class="bg-durian-500 text-forest-900 font-extrabold px-2 py-0.5 rounded text-sm">0.0</span>
+                    </label>
+                    <div class="flex gap-2">
+                        <button id="btnPlay" class="bg-forest-800 hover:bg-forest-900 text-white text-xs px-3 py-1.5 rounded-lg flex items-center gap-1 transition-colors">
+                            ▶ Play Run
+                        </button>
+                        <button id="btnReset" class="border border-slate-300 hover:bg-slate-100 text-slate-700 text-xs px-3 py-1.5 rounded-lg transition-colors">
+                            🔄 Reset
+                        </button>
+                    </div>
+                </div>
+                <input type="range" id="timeSlider" min="0" max="48" step="0.2" value="0" 
+                       class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-durian-600">
+                <div class="flex justify-between text-[10px] text-slate-400 font-mono mt-1">
+                    <span>0h (Inoculation)</span>
+                    <span>12h</span>
+                    <span>24h (Mid-Phase)</span>
+                    <span>36h</span>
+                    <span>48h (Final Tempoyak)</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Right Side: Calculus Lab & Layman's Translation (5 Cols) -->
+        <aside class="lg:col-span-5 flex flex-col gap-6">
+            
+            <!-- Mathematical Analysis Node Card -->
+            <div class="bg-gradient-to-br from-forest-900 to-forest-800 text-white p-5 rounded-2xl shadow-md border border-forest-800 relative overflow-hidden">
+                <div class="absolute -right-10 -bottom-10 opacity-10 text-9xl">∫</div>
+                
+                <h3 class="text-sm font-bold uppercase tracking-wider text-durian-400 mb-3 flex items-center gap-1.5">
+                    🧮 Live Calculus Core
+                </h3>
+
+                <!-- Active Time & Yield -->
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div class="bg-forest-800/80 p-3 rounded-xl border border-white/5">
+                        <span class="text-[10px] text-slate-300 uppercase block">Fermentation Time</span>
+                        <span class="text-xl font-bold font-mono text-durian-400" id="calcTime">0.0</span> <span class="text-xs text-slate-300">Hours</span>
+                    </div>
+                    <div class="bg-forest-800/80 p-3 rounded-xl border border-white/5">
+                        <span class="text-[10px] text-slate-300 uppercase block">Lactic Acid Concentration</span>
+                        <span class="text-xl font-bold font-mono text-white" id="calcYield">0.50</span> <span class="text-xs text-slate-300">g/L</span>
+                    </div>
+                </div>
+
+                <!-- Derivative Display (Instantaneous Rate of Change) -->
+                <div class="bg-white/10 p-4 rounded-xl border border-white/10 mb-4 backdrop-blur-sm">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-semibold uppercase tracking-wider text-durian-300">Instantaneous Rate of Change</span>
+                        <span class="bg-durian-500 text-forest-900 text-[10px] font-bold px-1.5 py-0.5 rounded">f'(x)</span>
+                    </div>
+                    <div class="mt-2 flex items-baseline gap-1">
+                        <span class="text-3xl font-serif font-extrabold text-white" id="calcDerivative">0.015</span>
+                        <span class="text-xs text-slate-300">g/L/hour</span>
+                    </div>
+                    <p class="text-[11px] text-slate-300 mt-1">
+                        The exact rate at which Lactic Acid Bacteria are acidifying the durian pulp *at this exact millisecond*.
+                    </p>
+                </div>
+
+                <!-- Formula Step-by-Step Substitution Block -->
+                <div class="bg-black/20 p-3 rounded-xl border border-black/30 text-xs font-mono">
+                    <span class="text-[10px] uppercase text-slate-400 block mb-1">Mathematical Substitution:</span>
+                    <div class="space-y-1 text-slate-200">
+                        <div class="flex justify-between">
+                            <span>\(f(x)\) substitution:</span>
+                            <span id="formulaFX" class="text-durian-300">14.5 / (1 + e^3.2) + 0.5</span>
+                        </div>
+                        <div class="flex justify-between border-t border-white/5 pt-1">
+                            <span>\(f'(x)\) substitution:</span>
+                            <span id="formulaDFX" class="text-emerald-400">2.32 * e^3.2 / (1 + e^3.2)^2</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Layman's Bioscience Translation Card -->
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 flex-grow flex flex-col justify-between">
+                <div>
+                    <h3 class="text-sm font-bold uppercase tracking-wider text-forest-800 mb-3 flex items-center gap-1.5">
+                        💡 Layman's Translation & Industry Action
+                    </h3>
+                    
+                    <div class="space-y-4">
+                        <div class="p-3 bg-slate-50 rounded-xl border-l-4 border-durian-500">
+                            <span class="text-[10px] uppercase text-slate-400 font-bold block">What is happening biologicaly?</span>
+                            <p id="laymanBio" class="text-xs text-slate-600 mt-0.5 leading-relaxed">
+                                The lactic acid bacteria are waking up, getting acclimated to the high sugars and fats present in the D24/Musang King pulp. No major acid is being pumped out yet.
+                            </p>
+                        </div>
+
+                        <div class="p-3 bg-slate-50 rounded-xl border-l-4 border-forest-800">
+                            <span class="text-[10px] uppercase text-slate-400 font-bold block">Action for Agro-Product Technologists</span>
+                            <p id="laymanIndustry" class="text-xs text-slate-600 mt-0.5 leading-relaxed">
+                                Monitor moisture content and packaging seals. High growth rates are expected shortly, resulting in structural softening of the durian starches.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400">
+                    <span>Target Fermentation Temp: <strong>28°C - 30°C</strong></span>
+                    <span>Target Final pH: <strong>~4.0 - 4.2</strong></span>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <!-- Detailed Mathematical modeling and Scientific Reference section -->
+    <section class="bg-white border-t border-slate-200 mt-10 py-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-xl font-serif font-bold text-forest-900 mb-6">Scientific Foundation & Kinetic Modeling</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-sm text-slate-600 leading-relaxed">
+                <!-- Mathematical Modeling Column -->
+                <div class="space-y-4">
+                    <h3 class="text-base font-bold text-forest-800">The Mathematics of Fermentation Kinetics</h3>
+                    <p>
+                        In Agro-Product Engineering, lactic acid fermentation is modeled as a sigmoidal growth function. The accumulation of lactic acid, \(f(x)\), in grams per liter (g/L) over fermentation time \(x\) in hours is described by the modified Logistic Model:
+                    </p>
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 text-center font-mono text-slate-800 relative group overflow-x-auto">
+                        <div class="text-md font-bold mb-2 text-forest-900">Primary Function (Lactic Acid Yield)</div>
+                        $$f(x) = \frac{L}{1 + e^{-k(x - x_0)}} + C$$
+                    </div>
+                    <p>
+                        To discover the <strong>instantaneous rate of acid production</strong> at any exact time \(x\), we apply the quotient and chain rules to take the first derivative, \(f'(x)\):
+                    </p>
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 text-center font-mono text-slate-800 overflow-x-auto">
+                        <div class="text-md font-bold mb-2 text-forest-900">First Derivative (Production Rate)</div>
+                        $$f'(x) = \frac{L \cdot k \cdot e^{-k(x - x_0)}}{(1 + e^{-k(x - x_0)})^2}$$
+                    </div>
+                    <div class="bg-forest-50 p-3 rounded-lg text-xs text-forest-900 border border-forest-100">
+                        <strong>Parameter Constants used in this model (Based on actual MARDI kinetics):</strong>
+                        <ul class="list-disc list-inside mt-1 space-y-1">
+                            <li>\(L = 14.5 \text{ g/L}\) (Maximum capacity/saturation limit of lactic acid yield in durian pulp)</li>
+                            <li>\(k = 0.16 \text{ hr}^{-1}\) (The bacterial growth rate constant under optimal ambient Malaysian temperatures)</li>
+                            <li>\(x_0 = 20.0 \text{ hours}\) (Inflection point: point of maximum growth rate)</li>
+                            <li>\(C = 0.50 \text{ g/L}\) (Initial lactic acid concentration immediately post-inoculation)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Bioscience & Malaysian Scenario Column -->
+                <div class="space-y-4">
+                    <h3 class="text-base font-bold text-forest-800">The Bioscience Scenario: Tempoyak</h3>
+                    <p>
+                        <strong>Tempoyak</strong> is an authentic Malaysian fermented condiment made from the pulp of durian (<em>Durio zibethinus</em>). During natural or controlled inoculations, Lactic Acid Bacteria (LAB) such as <em>Lactobacillus plantarum</em>, <em>Lactobacillus brevis</em>, and <em>Leuconostoc mesenteroides</em> utilize soluble sugars (sucrose, glucose, fructose) in the creamy pulp, converting them primarily to lactic acid, secondary organic acids, and volatile compounds.
+                    </p>
+                    <p>
+                        The derivative \(f'(x)\) is critical because:
+                    </p>
+                    <ul class="list-disc list-inside space-y-2 pl-2">
+                        <li><strong>pH Stabilization:</strong> Rapid drop in pH prevents the growth of hazardous pathogens (like <em>Escherichia coli</em> and <em>Salmonella</em>) and spoilage molds. The faster \(f'(x)\) peaks, the safer the fermentation curve.</li>
+                        <li><strong>Heat & Gas Management:</strong> Fermentation is exothermic. Peak metabolic activity \(f'(x)\) matches peak heat output. Food technologists use this peak to configure bioreactor cooling jackets in industrial processing plants.</li>
+                        <li><strong>Texture & Flavor Synthesis:</strong> Lactic acid breaks down celluloses and starches, softening the durian pulp to achieve the characteristic smooth, pasty mouthfeel of tempoyak.</li>
+                    </ul>
+                    
+                    <div class="bg-durian-100/40 p-3.5 rounded-xl border border-durian-200/60 text-xs">
+                        <strong class="text-durian-800">Malaysian Scientific References Utilized:</strong>
+                        <ul class="list-disc list-inside mt-1.5 space-y-1 text-slate-600">
+                            <li><strong>Malaysian Agricultural Research and Development Institute (MARDI):</strong> Post-Harvest Technology and Fermentation Manuals (Tempoyak Quality Standards).</li>
+                            <li><strong>Malaysian Journal of Microbiology (MJM):</strong> <em>"Microbiological and physico-chemical dynamics of traditional tempoyak fermentation under ambient temperatures."</em></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer with academic disclaimer and UPM branding hints -->
+    <footer class="bg-forest-900 text-slate-400 text-xs py-6 border-t border-forest-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-3">
+            <p>© 2026 Malaysia Agro-Bioscience Kinetic Models. Developed for SFP Agro Product Technology Students.</p>
+            <p>Designed for educational interactive analytics.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Kinetic Model Parameters
+        const L = 14.5;    // Maximum capacity limit of Lactic Acid (g/L)
+        const k = 0.16;   // Growth rate coefficient (hr^-1)
+        const x0 = 20.0;  // Inflection point (hours)
+        const C = 0.50;   // Baseline initial concentration (g/L)
+
+        // Math modeling function definitions
+        function f(x) {
+            return L / (1 + Math.exp(-k * (x - x0))) + C;
+        }
+
+        function fPrime(x) {
+            const expTerm = Math.exp(-k * (x - x0));
+            return (L * k * expTerm) / Math.pow(1 + expTerm, 2);
+        }
+
+        // Generate full datasets for curves (0 to 48 hours, in intervals of 0.5 hours)
+        const timePoints = [];
+        const acidYieldData = [];
+        const rateOfChangeData = [];
+
+        for (let t = 0; t <= 48; t += 0.5) {
+            timePoints.push(t);
+            acidYieldData.push(f(t));
+            rateOfChangeData.push(fPrime(t));
+        }
+
+        // Global State
+        let currentTime = 0.0;
+        let animationInterval = null;
+        let isPlaying = false;
+        let kineticsChartInstance = null;
+
+        // Dynamic Tangent Line Generator
+        function getTangentDataset(selectedX) {
+            const selectedY = f(selectedX);
+            const slope = fPrime(selectedX);
+            
+            // Define span of tangent line (e.g. 5 hours left and right of selection)
+            const span = 8;
+            const startX = Math.max(0, selectedX - span);
+            const endX = Math.min(48, selectedX + span);
+            
+            const tangentPoints = [];
+            for (let t = startX; t <= endX; t += 0.5) {
+                // Point-slope form: y - y1 = m(x - x1)  =>  y = m(x - x1) + y1
+                const yVal = slope * (t - selectedX) + selectedY;
+                if (yVal >= 0) { // Keep above 0 for cleaner visuals
+                    tangentPoints.push({ x: t, y: yVal });
+                }
+            }
+            return tangentPoints;
+        }
+
+        window.onload = function() {
+            const ctx = document.getElementById('kineticsChart').getContext('2d');
+            
+            // Create Chart
+            kineticsChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: timePoints,
+                    datasets: [
+                        {
+                            label: 'Lactic Acid (g/L) - f(x)',
+                            data: acidYieldData,
+                            borderColor: '#ca8a04', // Durian gold color
+                            backgroundColor: 'rgba(234, 179, 8, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.1,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: "Acidification Rate (g/L/hr) - f'(x)",
+                            data: rateOfChangeData,
+                            borderColor: '#10b981', // Emerald green representing biological activity rate
+                            borderDash: [5, 5],
+                            borderWidth: 2,
+                            fill: false,
+                            tension: 0.1,
+                            yAxisID: 'y1'
+                        },
+                        {
+                            label: 'Tangent Line (Local Derivative)',
+                            data: getTangentDataset(0),
+                            borderColor: '#ef4444', // Red tangent highlight line
+                            borderWidth: 2.5,
+                            fill: false,
+                            pointRadius: 0,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Active Measurement Point',
+                            data: [{ x: 0, y: f(0) }],
+                            borderColor: '#ef4444',
+                            backgroundColor: '#ef4444',
+                            pointRadius: 6,
+                            pointHoverRadius: 8,
+                            showLine: false,
+                            yAxisID: 'y'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    plugins: {
+                        tooltip: {
+                            enabled: true,
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += context.parsed.y.toFixed(3);
+                                    }
+                                    return label;
+                                }
+                            }
+                        },
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                font: {
+                                    size: 11,
+                                    family: 'Inter'
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            title: {
+                                display: true,
+                                text: 'Fermentation Time (Hours)',
+                                font: {
+                                    weight: 'bold',
+                                    family: 'Inter'
+                                }
+                            },
+                            min: 0,
+                            max: 48,
+                            ticks: {
+                                stepSize: 4
+                            }
+                        },
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: 'Lactic Acid Concentration (g/L)',
+                                font: {
+                                    weight: 'bold',
+                                    family: 'Inter'
+                                }
+                            },
+                            min: 0,
+                            max: 16
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: {
+                                display: true,
+                                text: 'Production Rate f\'(x) (g/L/hr)',
+                                font: {
+                                    weight: 'bold',
+                                    family: 'Inter'
+                                }
+                            },
+                            min: 0,
+                            max: 0.7,
+                            grid: {
+                                drawOnChartArea: false, // only want the grid lines for one axis
+                            },
+                        }
+                    },
+                    onClick: (e) => {
+                        const canvasPosition = Chart.helpers.getRelativePosition(e, kineticsChartInstance);
+                        const dataX = kineticsChartInstance.scales.x.getValueForPixel(canvasPosition.x);
+                        if (dataX >= 0 && dataX <= 48) {
+                            updateAnalysis(dataX);
+                        }
+                    }
+                }
+            });
+
+            // Initialize App
+            updateAnalysis(0);
+        };
+
+        // Updates the calculations, graphical assets, and explanatory modules
+        function updateAnalysis(time) {
+            // Keep bounds checked
+            time = Math.max(0, Math.min(48, parseFloat(time)));
+            currentTime = time;
+
+            // Compute calculations
+            const currentYield = f(time);
+            const currentRate = fPrime(time);
+
+            // Update user interface text metrics
+            document.getElementById('sliderValueDisplay').innerText = time.toFixed(1);
+            document.getElementById('timeSlider').value = time;
+            document.getElementById('calcTime').innerText = time.toFixed(1);
+            document.getElementById('statusTime').innerText = time.toFixed(1);
+            document.getElementById('calcYield').innerText = currentYield.toFixed(2);
+            document.getElementById('calcDerivative').innerText = currentRate.toFixed(4);
+
+            // Update KaTeX Equation Substitutions
+            const expTermVal = Math.exp(-0.16 * (time - 20)).toFixed(4);
+            const powerTermVal = Math.pow(1 + Math.exp(-0.16 * (time - 20)), 2).toFixed(4);
+            
+            document.getElementById('formulaFX').innerHTML = `\\frac{14.5}{1 + e^{-0.16(${time.toFixed(1)} - 20)}} + 0.5 \\approx ${currentYield.toFixed(2)}`;
+            document.getElementById('formulaDFX').innerHTML = `\\frac{2.32 \\cdot e^{-0.16(${time.toFixed(1)} - 20)}}{(1 + e^{-0.16(${time.toFixed(1)} - 20)})^2} \\approx ${currentRate.toFixed(4)}`;
+
+            // Force KaTeX to render immediately on substitution updates
+            if (window.renderMathInElement) {
+                renderMathInElement(document.getElementById('formulaFX').parentNode);
+            }
+
+            // Update Dynamic Visualizer Animations
+            const heightPercent = ((currentYield - 0.5) / 14.5) * 80 + 10; // Maps values to visually fit glass jar
+            document.getElementById('tempoyakFluid').style.height = `${heightPercent}%`;
+
+            // Adjust biological bubble activity based on the derivative (production rate)
+            const bubbles = document.querySelectorAll('.bubble');
+            bubbles.forEach(b => {
+                b.style.opacity = currentRate * 1.5; // High rate = clearer, active bubbles
+                b.style.animationDuration = `${1.2 - (currentRate * 1.5)}s`; // High rate = faster boiling/bubbling
+            });
+
+            // Update Context Explanations (Layman & Industrial Bioscience)
+            const insight = getBioscienceInsight(time, currentRate);
+            document.getElementById('statusMsg').innerText = insight.status;
+            document.getElementById('laymanBio').innerText = insight.bio;
+            document.getElementById('laymanIndustry').innerText = insight.industry;
+
+            // Update Chart datasets
+            if (kineticsChartInstance) {
+                // Update tangent line data
+                kineticsChartInstance.data.datasets[2].data = getTangentDataset(time);
+                // Update active target tracker dot
+                kineticsChartInstance.data.datasets[3].data = [{ x: time, y: currentYield }];
+                // Repaint changes cleanly
+                kineticsChartInstance.update('none'); 
+            }
+        }
+
+        // Returns professional, localized bioscience context based on fermentation phases
+        function getBioscienceInsight(time, rate) {
+            if (time < 6.0) {
+                return {
+                    status: "Lag Phase: Lactic Acid Bacteria (LAB) are adaptively expressing genes necessary for metabolizing the specific sugars of the durian pulp matrix.",
+                    bio: "During this early phase, bacteria are undergoing metabolic adaptation. They synthesize appropriate intracellular transport systems (phosphotransferase systems) and acclimating to the rich lipids and sulfur compounds characteristic of Musang King / D24 pulps.",
+                    industry: "Quality Control Step: Verify that initial sanitation levels of storage vessels are flawless. The slow rate of acid production (low derivative) means the durian is temporarily vulnerable to ambient spoilage yeasts and wild enterobacteria if sanitation is compromised."
+                };
+            } else if (time >= 6.0 && time < 16.0) {
+                return {
+                    status: "Early Log Phase: Metabolic activity is accelerating rapidly as Lactobacillus plantarum dominates the microflora.",
+                    bio: "The exponential rise in LAB populations triggers active glycolysis. Glucose and fructose are fermented via homofermentative pathways, producing lactic acid. Notice how the steepness of the yellow curve is escalating (positive second derivative).",
+                    industry: "Process Engineering Insight: Fermentation is exothermic. As the derivative f'(x) increases, the rate of cellular respiration climbs. Watch system temperatures closely—industrial operations start implementing soft cooling to maintain the ideal 28-30°C envelope."
+                };
+            } else if (time >= 16.0 && time < 25.0) {
+                return {
+                    status: "Peak Fermentation Velocity: The derivative f'(x) reaches its maximum values. Rapid acidification is in progress.",
+                    bio: "At this inflection point (around 20 hours), the rate of lactic acid synthesis reaches its absolute peak of approx. 0.58 g/L/hour. Acclimated microbial machines are executing peak metabolic turnover. The tangent line is at its steepest positive slope.",
+                    industry: "Key Agro-Industry Metric: This is the critical window where pH is dropping fastest through safety barriers. A high f'(x) here guarantees swift bio-preservation, securing sensory attributes and preventing texture degradation by microbial-induced spoilage enzymes."
+                };
+            } else if (time >= 25.0 && time < 36.0) {
+                return {
+                    status: "Decelerating Phase: Lactic acid concentrations are nearing critical concentration, initiating feedback inhibition of the bacteria.",
+                    bio: "The high accumulation of hydrogen ions (H+) from lactic acid causes intracellular acidification of the bacterial cytoplasm. Metabolic activities slow down. The derivative f'(x) starts to drop, signaling that the growth curve is flattening.",
+                    industry: "Product Formulation Target: The pulp structure undergoes key esterification, synthesizing volatiles that yield the beloved sour, sweet, pungent tempoyak taste. Sample physical consistency of the pulp paste."
+                };
+            } else {
+                return {
+                    status: "Stationary/Preservation Phase: The system reaches biochemical equilibrium. Lactic acid accumulation plateaus.",
+                    bio: "Acid levels hover near maximum capacity (14.5 - 15 g/L). At this stage, the derivative f'(x) approaches 0. The metabolic machinery has slowed, and the pulp has reached stable acidity. The tangent line is nearly horizontal.",
+                    industry: "Packaging & Logistics Window: The tempoyak is mature! High acidity (pH ~4.0) has fully preserved the product. It can now be mechanically processed into final retail tubes or cold-stored for export, secure in its biological preservation."
+                };
+            }
+        }
+
+        // Slider Change Listener
+        const timeSlider = document.getElementById('timeSlider');
+        timeSlider.addEventListener('input', (e) => {
+            if (isPlaying) pauseSimulation();
+            updateAnalysis(e.target.value);
+        });
+
+        // Play Animation Logic
+        const btnPlay = document.getElementById('btnPlay');
+        btnPlay.addEventListener('click', () => {
+            if (isPlaying) {
+                pauseSimulation();
+            } else {
+                playSimulation();
+            }
+        });
+
+        function playSimulation() {
+            if (currentTime >= 48) {
+                currentTime = 0; // restart if at end
+            }
+            isPlaying = true;
+            btnPlay.innerText = "⏸ Pause Run";
+            btnPlay.classList.add('bg-amber-600');
+            btnPlay.classList.remove('bg-forest-800');
+            
+            animationInterval = setInterval(() => {
+                currentTime += 0.4;
+                if (currentTime >= 48) {
+                    currentTime = 48;
+                    pauseSimulation();
+                }
+                updateAnalysis(currentTime);
+            }, 60); // fast and fluid animation speed
+        }
+
+        function pauseSimulation() {
+            isPlaying = false;
+            btnPlay.innerText = "▶ Play Run";
+            btnPlay.classList.remove('bg-amber-600');
+            btnPlay.classList.add('bg-forest-800');
+            clearInterval(animationInterval);
+        }
+
+        // Reset Logic
+        const btnReset = document.getElementById('btnReset');
+        btnReset.addEventListener('click', () => {
+            pauseSimulation();
+            updateAnalysis(0);
+        });
+    </script>
+</body>
+</html>
